@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Service Manifest",
+  "description": "Schema for Tanuki service catalog entries",
+  "type": "object",
+  "required": ["name", "version", "owner", "team", "health_url", "repo_url", "last_deploy"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*[a-z0-9]$",
+      "minLength": 3,
+      "maxLength": 30,
+      "description": "Service identifier (e.g. payments-api); must match the manifest filename"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "Currently deployed version (semver)"
+    },
+    "owner": {
+      "type": "string",
+      "format": "email",
+      "description": "Primary owner (email)"
+    },
+    "owners": {
+      "type": "array",
+      "items": { "type": "string", "format": "email" },
+      "uniqueItems": true,
+      "description": "Optional list of additional owners"
+    },
+    "team": {
+      "type": "string",
+      "enum": ["platform", "payments", "experience", "data"],
+      "description": "Owning team"
+    },
+    "health_url": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://",
+      "description": "Health/status endpoint URL"
+    },
+    "repo_url": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://",
+      "description": "Source repository URL"
+    },
+    "on_call": {
+      "type": "string",
+      "pattern": "^#[a-z0-9-]+$",
+      "description": "On-call Slack channel"
+    },
+    "last_deploy": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last deployment timestamp (RFC 3339)"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 120,
+      "description": "Short service description"
+    }
+  },
+  "additionalProperties": false
+}
