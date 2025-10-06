@@ -1,0 +1,27 @@
+# Binaries
+/tanuki
+/tanuki-*
+*.exe
+dist/
+
+# Go
+vendor/
+*.test
+coverage.out
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.Python
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+
+# IDE / OS
+.idea/
+.DS_Store
+*.swp
+*.swo
