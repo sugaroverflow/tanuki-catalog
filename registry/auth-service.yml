@@ -1,0 +1,9 @@
+name: auth-service
+version: 1.5.2
+owner: cesar@tanuki-services.example
+team: platform
+health_url: https://auth-service.tanuki.internal/health
+repo_url: https://github.com/sugaroverflow/auth-service
+on_call: "#platform-oncall"
+last_deploy: "2025-10-13T09:30:00Z"
+description: Token issuing and session validation for all internal services

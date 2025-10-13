@@ -1,0 +1,9 @@
+name: session-cache
+version: 2.3.0
+owner: alice@tanuki-services.example
+team: platform
+health_url: https://session-cache.tanuki.internal/health
+repo_url: https://github.com/sugaroverflow/session-cache
+on_call: "#platform-oncall"
+last_deploy: "2025-10-13T11:00:00Z"
+description: Shared session storage with TTL eviction, backing auth-service
