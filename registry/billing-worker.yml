@@ -1,0 +1,9 @@
+name: billing-worker
+version: 1.6.2
+owner: john@tanuki-services.example
+team: payments
+health_url: https://billing-worker.tanuki.internal/health
+repo_url: https://github.com/sugaroverflow/billing-worker
+on_call: "#payments-oncall"
+last_deploy: "2025-10-14T08:30:00Z"
+description: Async invoice generation and billing retries
