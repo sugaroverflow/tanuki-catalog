@@ -1,0 +1,40 @@
+# Composite action: Python + registry tooling; validates manifests and builds the catalog.
+name: 'Catalog tools'
+description: 'Set up Python, install registry tooling, build the catalog'
+inputs:
+  python-version:
+    description: 'Python version'
+    required: false
+    default: '3.12'
+  output:
+    description: 'Where to write the built catalog'
+    required: false
+    default: 'dist/catalog.json'
+outputs:
+  catalog-path:
+    description: 'Path of the built catalog'
+    value: ${{ steps.build.outputs.path }}
+  service-count:
+    description: 'Number of services in the built catalog'
+    value: ${{ steps.build.outputs.count }}
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+        cache: pip
+
+    - name: Install dependencies
+      shell: bash
+      run: python -m pip install -r requirements.txt
+
+    - name: Build catalog
+      id: build
+      shell: bash
+      run: |
+        python scripts/build_catalog.py -o '${{ inputs.output }}'
+        echo "path=${{ inputs.output }}" >> "$GITHUB_OUTPUT"
+        count=$(python -c "import json; print(len(json.load(open('${{ inputs.output }}'))))")
+        echo "count=$count" >> "$GITHUB_OUTPUT"

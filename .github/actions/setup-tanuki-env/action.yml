@@ -1,0 +1,17 @@
+# Composite action: Go toolchain for Tanuki CI/publish jobs.
+# Module caching is handled by callers that need it (see ci.yml).
+name: 'Setup Tanuki environment'
+description: 'Install Go and set up the build env'
+inputs:
+  go-version:
+    description: 'Go version'
+    required: false
+    default: '1.25'
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: ${{ inputs.go-version }}
+        cache: false
