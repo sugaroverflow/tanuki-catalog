@@ -1,0 +1,78 @@
+# Shared Go build: cross-compiles tanuki for the requested platforms.
+# Called by publish.yml (main-branch snapshot) and release.yml (tagged releases).
+name: Reusable Go build
+
+on:
+  workflow_call:
+    inputs:
+      go-version:
+        description: 'Go toolchain version'
+        type: string
+        default: '1.25'
+      platforms:
+        description: 'Space-separated GOOS/GOARCH pairs'
+        type: string
+        default: 'linux/amd64'
+      version:
+        description: 'Version string baked into the binary (defaults to 0.0.0-<sha>)'
+        type: string
+        default: ''
+      artifact-name:
+        description: 'Name of the uploaded artifact'
+        type: string
+        default: 'tanuki-binaries'
+    outputs:
+      version:
+        description: 'Version the binaries report'
+        value: ${{ jobs.build.outputs.version }}
+      artifact-name:
+        description: 'Uploaded artifact name'
+        value: ${{ jobs.build.outputs.artifact-name }}
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+      artifact-name: ${{ inputs.artifact-name }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Tanuki env
+        uses: ./.github/actions/setup-tanuki-env
+        with:
+          go-version: ${{ inputs.go-version }}
+
+      - name: Resolve version
+        id: meta
+        run: |
+          version='${{ inputs.version }}'
+          if [ -z "$version" ]; then
+            version="0.0.0-$(git rev-parse --short HEAD)"
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Build binaries
+        run: |
+          mkdir -p dist
+          for platform in ${{ inputs.platforms }}; do
+            goos=${platform%/*}
+            goarch=${platform#*/}
+            suffix=''
+            [ "$goos" = windows ] && suffix='.exe'
+            CGO_ENABLED=0 GOOS=$goos GOARCH=$goarch \
+              go build -trimpath \
+                -ldflags "-s -w -X main.version=${{ steps.meta.outputs.version }}" \
+                -o "dist/tanuki-$goos-$goarch$suffix" ./cmd/tanuki
+          done
+          ls -la dist/
+
+      - name: Upload binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.artifact-name }}
+          path: dist/
+          retention-days: 7

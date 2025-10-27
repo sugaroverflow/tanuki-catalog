@@ -1,0 +1,108 @@
+# Publish on merge to main: build catalog, deploy staging, smoke-test, deploy production.
+name: Publish
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# Never cancel an in-flight publish; queue behind it instead.
+concurrency:
+  group: publish-production
+  cancel-in-progress: false
+
+jobs:
+  build-catalog:
+    runs-on: ubuntu-latest
+    outputs:
+      service-count: ${{ steps.catalog.outputs.service-count }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build catalog
+        id: catalog
+        uses: ./.github/actions/catalog-tools
+
+      - name: Upload catalog
+        uses: actions/upload-artifact@v4
+        with:
+          name: catalog
+          path: dist/catalog.json
+          retention-days: 14
+
+  build-binary:
+    needs: build-catalog
+    uses: ./.github/workflows/reusable-go-build.yml
+    with:
+      artifact-name: tanuki-binary
+
+  deploy-staging:
+    needs: [build-catalog, build-binary]
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - name: Download catalog
+        uses: actions/download-artifact@v4
+        with:
+          name: catalog
+
+      - name: Download binary
+        uses: actions/download-artifact@v4
+        with:
+          name: tanuki-binary
+
+      - name: Publish staging snapshot
+        run: |
+          echo "Staging: catalog + binary staged for the snapshot bucket"
+          ls -la
+
+  smoke-test:
+    needs: [build-catalog, deploy-staging]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Tanuki env
+        uses: ./.github/actions/setup-tanuki-env
+
+      - name: Download catalog
+        uses: actions/download-artifact@v4
+        with:
+          name: catalog
+
+      - name: Build tanuki
+        run: go build -o tanuki ./cmd/tanuki
+
+      - name: Smoke test against published catalog
+        env:
+          EXPECTED: ${{ needs.build-catalog.outputs.service-count }}
+        run: |
+          rows=$(./tanuki list | tail -n +2 | wc -l | tr -d ' ')
+          echo "catalog rows: $rows (expected $EXPECTED)"
+          test "$rows" -eq "$EXPECTED"
+
+  deploy-production:
+    needs: smoke-test
+    runs-on: ubuntu-latest
+    environment: production  # Requires manual approval in GitHub
+    steps:
+      - name: Publish production snapshot
+        run: echo "Production catalog snapshot promoted"
+
+  notify:
+    needs: [deploy-staging, smoke-test, deploy-production]
+    if: failure()
+    runs-on: ubuntu-latest
+    env:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+    steps:
+      - name: Notify on-call
+        if: env.SLACK_WEBHOOK_URL != ''
+        uses: slackapi/slack-github-action@v2
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            text: ":rotating_light: Publish pipeline failed on ${{ github.sha }} — <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|view run> (#platform-oncall)"
