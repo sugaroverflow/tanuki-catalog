@@ -1,0 +1,35 @@
+# Deploys inventory-service when its registry manifest changes.
+name: Deploy inventory-service
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'registry/inventory-service.yml'
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: payments
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        if: vars.DEPLOY_ENABLED == 'true'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::210987654321:role/tanuki-deploy-payments
+          aws-region: us-east-1
+
+      - name: Publish manifest
+        if: vars.DEPLOY_ENABLED == 'true'
+        run: aws s3 cp registry/inventory-service.yml s3://tanuki-prod-registry/inventory-service.yml
+
+      - name: Redeploy service
+        if: vars.DEPLOY_ENABLED == 'true'
+        run: aws ecs update-service --cluster payments --service inventory-service --force-new-deployment

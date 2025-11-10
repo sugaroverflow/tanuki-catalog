@@ -1,0 +1,36 @@
+# Deploys billing-worker when its registry manifest changes.
+# TODO(payments): fold into a reusable workflow like reusable-go-build.yml — PAY-988
+name: Deploy billing-worker
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'registry/billing-worker.yml'
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: payments
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        if: vars.DEPLOY_ENABLED == 'true'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::210987654321:role/tanuki-deploy-payments
+          aws-region: us-east-1
+
+      - name: Publish manifest
+        if: vars.DEPLOY_ENABLED == 'true'
+        run: aws s3 cp registry/billing-worker.yml s3://tanuki-prod-registry/billing-worker.yml
+
+      - name: Redeploy service
+        if: vars.DEPLOY_ENABLED == 'true'
+        run: aws ecs update-service --cluster payments --service billing-worker --force-new-deployment
