@@ -1,0 +1,36 @@
+# Deploys session-cache when its registry manifest changes.
+# TODO(platform): fold into a reusable workflow like reusable-go-build.yml — PLAT-1742
+name: Deploy session-cache
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'registry/session-cache.yml'
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: platform
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        if: vars.DEPLOY_ENABLED == 'true'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::210987654321:role/tanuki-deploy-platform
+          aws-region: us-east-1
+
+      - name: Publish manifest
+        if: vars.DEPLOY_ENABLED == 'true'
+        run: aws s3 cp registry/session-cache.yml s3://tanuki-prod-registry/session-cache.yml
+
+      - name: Redeploy service
+        if: vars.DEPLOY_ENABLED == 'true'
+        run: aws ecs update-service --cluster platform --service session-cache --force-new-deployment
