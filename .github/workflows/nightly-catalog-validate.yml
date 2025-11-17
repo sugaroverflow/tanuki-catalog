@@ -1,0 +1,73 @@
+# Nightly registry validation, drift check, and benchmark tracking.
+name: Nightly catalog validate
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Validate registry (retry for mirror flakes)
+        uses: nick-invision/retry@v3
+        with:
+          timeout_minutes: 5
+          max_attempts: 3
+          command: python scripts/build_catalog.py --validate
+
+  drift-check:
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build fresh catalog
+        uses: ./.github/actions/catalog-tools
+        with:
+          output: /tmp/catalog-fresh.json
+
+      - name: Compare against committed catalog
+        run: diff -u catalog.json /tmp/catalog-fresh.json
+
+      - name: Upload fresh catalog
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: catalog-nightly
+          path: /tmp/catalog-fresh.json
+          retention-days: 3
+
+  bench:
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Tanuki env
+        uses: ./.github/actions/setup-tanuki-env
+
+      - name: Run benchmarks
+        run: go test -bench=. -benchmem -run '^$' ./internal/... | tee bench.txt
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: bench-nightly
+          path: bench.txt
+          retention-days: 14
