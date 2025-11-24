@@ -1,0 +1,26 @@
+# Page the on-call channel when the nightly validation fails.
+name: Notify on-call
+
+on:
+  workflow_run:
+    workflows: ["Nightly catalog validate"]
+    types: [completed]
+
+permissions:
+  contents: read
+
+jobs:
+  notify:
+    if: github.event.workflow_run.conclusion == 'failure'
+    runs-on: ubuntu-latest
+    env:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+    steps:
+      - name: Send Slack alert
+        if: env.SLACK_WEBHOOK_URL != ''
+        uses: slackapi/slack-github-action@v2
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            text: ":rotating_light: Nightly catalog validation failed — <${{ github.event.workflow_run.html_url }}|view run> (#platform-oncall)"
