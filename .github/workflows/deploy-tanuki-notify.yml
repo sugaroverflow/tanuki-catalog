@@ -1,0 +1,35 @@
+# Deploys tanuki-notify when its registry manifest changes.
+name: Deploy tanuki-notify
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'registry/tanuki-notify.yml'
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: experience
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        if: vars.DEPLOY_ENABLED == 'true'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::210987654321:role/tanuki-deploy-experience
+          aws-region: us-east-1
+
+      - name: Publish manifest
+        if: vars.DEPLOY_ENABLED == 'true'
+        run: aws s3 cp registry/tanuki-notify.yml s3://tanuki-prod-registry/tanuki-notify.yml
+
+      - name: Redeploy service
+        if: vars.DEPLOY_ENABLED == 'true'
+        run: aws ecs update-service --cluster experience --service tanuki-notify --force-new-deployment
