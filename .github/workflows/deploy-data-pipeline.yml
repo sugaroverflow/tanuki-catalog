@@ -1,0 +1,35 @@
+# Deploys data-pipeline when its registry manifest changes.
+name: Deploy data-pipeline
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'registry/data-pipeline.yml'
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: data
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        if: vars.DEPLOY_ENABLED == 'true'
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/000000000000/locations/global/workloadIdentityPools/tanuki-ci/providers/github
+          service_account: tanuki-deploy-data@tanuki-services-prod.iam.gserviceaccount.com
+
+      - name: Publish manifest
+        if: vars.DEPLOY_ENABLED == 'true'
+        run: gsutil cp registry/data-pipeline.yml gs://tanuki-prod-registry/data-pipeline.yml
+
+      - name: Redeploy job
+        if: vars.DEPLOY_ENABLED == 'true'
+        run: gcloud run jobs update data-pipeline --region us-central1
