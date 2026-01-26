@@ -1,0 +1,11 @@
+name: metrics-collector
+version: 1.10.2
+owner: cesar@tanuki-services.example
+owners:
+  - priya@tanuki-services.example
+team: platform
+health_url: https://metrics-collector.tanuki.internal/health
+repo_url: https://github.com/sugaroverflow/metrics-collector
+on_call: "#platform-oncall"
+last_deploy: "2026-01-26T14:30:00Z"
+description: Aggregates service metrics and forwards them to the observability stack

@@ -1,0 +1,9 @@
+name: feature-flags
+version: 0.8.0
+owner: priya@tanuki-services.example
+team: platform
+health_url: https://feature-flags.tanuki.internal/health
+repo_url: https://github.com/sugaroverflow/feature-flags
+on_call: "#platform-oncall"
+last_deploy: "2026-01-26T13:00:00Z"
+description: Runtime feature flag evaluation and rollout targeting
