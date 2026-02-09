@@ -1,0 +1,66 @@
+# Integration tests: exercise the remote-catalog path against a stubbed endpoint.
+name: Integration
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'cmd/**'
+      - 'internal/**'
+      - 'go.mod'
+      - 'go.sum'
+  pull_request:
+    paths:
+      - 'cmd/**'
+      - 'internal/**'
+      - 'go.mod'
+      - 'go.sum'
+
+permissions:
+  contents: read
+
+jobs:
+  remote-catalog:
+    runs-on: ubuntu-latest
+    services:
+      catalog-stub:
+        image: wiremock/wiremock:3.9.1
+        ports:
+          - 8080:8080
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Wait for catalog stub
+        uses: nick-invision/retry@v3
+        with:
+          timeout_minutes: 2
+          max_attempts: 20
+          retry_wait_seconds: 3
+          command: curl -sf http://localhost:8080/__admin/health
+
+      - name: Stub the remote catalog endpoint
+        run: |
+          jq -n --slurpfile catalog catalog.json '{
+            request: { method: "GET", url: "/catalog.json" },
+            response: {
+              status: 200,
+              headers: { "Content-Type": "application/json" },
+              jsonBody: $catalog[0]
+            }
+          }' | curl -sf -X POST http://localhost:8080/__admin/mappings --data @- > /dev/null
+
+      - name: Setup Tanuki env
+        uses: ./.github/actions/setup-tanuki-env
+
+      - name: Run integration tests
+        env:
+          TANUKI_CATALOG_URL: http://localhost:8080/catalog.json
+        run: go test -tags=integration -run Integration -v ./internal/catalog/
+
+      - name: CLI end-to-end against remote catalog
+        env:
+          TANUKI_CATALOG_URL: http://localhost:8080/catalog.json
+        run: |
+          go build -o tanuki ./cmd/tanuki
+          ./tanuki list
+          ./tanuki status payments-api
