@@ -1,0 +1,32 @@
+# Manual canary for payments-api: shift a fraction of traffic to the new task set.
+name: Canary payments-api
+
+on:
+  workflow_dispatch:
+    inputs:
+      weight:
+        description: 'Percent of traffic to shift to the canary'
+        type: number
+        default: 10
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  canary:
+    runs-on: ubuntu-latest
+    environment: payments
+    steps:
+      - name: Configure AWS credentials
+        if: vars.DEPLOY_ENABLED == 'true'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::210987654321:role/tanuki-deploy-payments
+          aws-region: us-east-1
+
+      - name: Shift canary traffic
+        if: vars.DEPLOY_ENABLED == 'true'
+        run: |
+          aws appmesh update-route --mesh-name tanuki --virtual-router-name payments-api \
+            --route-name canary --cli-input-json '{"weight": ${{ inputs.weight }}}'
