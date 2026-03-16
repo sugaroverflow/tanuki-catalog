@@ -1,0 +1,62 @@
+# Tagged releases: cross-compile, checksum, SBOM, sign, publish a GitHub Release.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    uses: ./.github/workflows/reusable-go-build.yml
+    with:
+      platforms: 'linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64'
+      version: ${{ github.ref_name }}
+      artifact-name: release-binaries
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download binaries
+        uses: actions/download-artifact@v4
+        with:
+          name: release-binaries
+          path: dist/
+
+      - name: Generate checksums
+        run: |
+          cd dist
+          shasum -a 256 tanuki-* > SHA256SUMS
+
+      - name: Generate SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          path: .
+          format: spdx-json
+          output-file: dist/tanuki-${{ github.ref_name }}.spdx.json
+
+      - name: Import release signing key
+        if: env.GPG_PRIVATE_KEY != ''
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+
+      - name: Sign checksums
+        if: env.GPG_PRIVATE_KEY != ''
+        run: gpg --batch --yes --armor --detach-sign dist/SHA256SUMS
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            dist/tanuki-*
+            dist/SHA256SUMS*
