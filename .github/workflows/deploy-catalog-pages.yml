@@ -1,0 +1,35 @@
+# Publish the static catalog viewer + catalog.json to GitHub Pages.
+name: Deploy catalog pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'registry/**'
+      - 'scripts/**'
+      - 'site/**'
+      - 'catalog.schema.json'
+
+permissions:
+  contents: write
+
+# Never cancel an in-flight pages deploy.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  pages:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build catalog into site
+        uses: ./.github/actions/catalog-tools
+        with:
+          output: site/catalog.json
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: site

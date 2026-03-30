@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tanuki Service Catalog</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      max-width: 60rem;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.5;
+    }
+    h1 { font-size: 1.5rem; }
+    .meta { color: #777; font-size: 0.875rem; margin-bottom: 1rem; }
+    select { padding: 0.25rem 0.5rem; margin-bottom: 1rem; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid #7773; }
+    th { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    td.version { font-variant-numeric: tabular-nums; }
+    .error { color: #b00020; }
+  </style>
+</head>
+<body>
+  <h1>Tanuki Service Catalog</h1>
+  <p class="meta">Generated from <code>registry/</code> manifests by <code>scripts/build_catalog.py</code>.</p>
+  <label>Team:
+    <select id="team-filter">
+      <option value="">all</option>
+    </select>
+  </label>
+  <table>
+    <thead>
+      <tr><th>Name</th><th>Version</th><th>Team</th><th>Owner</th><th>Last deploy</th></tr>
+    </thead>
+    <tbody id="services"></tbody>
+  </table>
+  <script>
+    const tbody = document.getElementById("services");
+    const filter = document.getElementById("team-filter");
+    let services = [];
+
+    function render() {
+      const team = filter.value;
+      tbody.replaceChildren();
+      for (const s of services) {
+        if (team && s.team !== team) continue;
+        const row = tbody.insertRow();
+        row.insertCell().textContent = s.name;
+        const v = row.insertCell();
+        v.textContent = s.version;
+        v.className = "version";
+        row.insertCell().textContent = s.team;
+        row.insertCell().textContent = s.owner;
+        row.insertCell().textContent = s.last_deploy || "";
+      }
+    }
+
+    fetch("catalog.json")
+      .then((r) => {
+        if (!r.ok) throw new Error(`catalog.json returned ${r.status}`);
+        return r.json();
+      })
+      .then((data) => {
+        services = data;
+        for (const team of [...new Set(services.map((s) => s.team))].sort()) {
+          filter.add(new Option(team, team));
+        }
+        render();
+      })
+      .catch((err) => {
+        tbody.innerHTML = `<tr><td colspan="5" class="error">Failed to load catalog: ${err.message}</td></tr>`;
+      });
+
+    filter.addEventListener("change", render);
+  </script>
+</body>
+</html>
