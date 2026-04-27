@@ -1,0 +1,14 @@
+.git
+.github
+.venv
+.idea
+dist
+site
+infra
+scripts
+registry
+*.md
+tanuki
+tanuki-*
+*.test
+coverage.out
