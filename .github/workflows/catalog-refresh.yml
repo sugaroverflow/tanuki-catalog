@@ -1,0 +1,50 @@
+# Weekly catalog hygiene: rebuild catalog.json and open a PR if it drifted.
+name: Catalog refresh
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+    inputs:
+      team:
+        description: 'Limit the refresh summary to one team'
+        type: choice
+        options: [all, platform, payments, experience, data]
+        default: all
+      dry_run:
+        description: 'Report drift without opening a PR'
+        type: boolean
+        default: true
+      reason:
+        description: 'Why is this refresh being run?'
+        type: string
+        default: 'scheduled hygiene'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Rebuild catalog
+        uses: ./.github/actions/catalog-tools
+        with:
+          output: catalog.json
+
+      - name: Report drift
+        run: |
+          echo "Refresh reason: ${{ inputs.reason || 'scheduled' }} (team: ${{ inputs.team || 'all' }})"
+          git status --short catalog.json || true
+
+      - name: Open PR if drifted
+        if: ${{ !inputs.dry_run }}
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: Refresh generated catalog.json
+          title: Refresh generated catalog.json
+          body: 'Automated catalog rebuild (${{ inputs.reason || ''scheduled'' }}).'
+          branch: automation/catalog-refresh
