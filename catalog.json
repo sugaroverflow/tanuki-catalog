@@ -16,13 +16,13 @@
   {
     "description": "Token issuing and session validation for all internal services",
     "health_url": "https://auth-service.tanuki.internal/health",
-    "last_deploy": "2025-10-13T09:30:00Z",
+    "last_deploy": "2026-07-21T09:14:00Z",
     "name": "auth-service",
     "on_call": "#platform-oncall",
     "owner": "cesar@tanuki-services.example",
     "repo_url": "https://github.com/sugaroverflow/auth-service",
     "team": "platform",
-    "version": "1.5.2"
+    "version": "1.6.1"
   },
   {
     "description": "Async invoice generation and billing retries",
