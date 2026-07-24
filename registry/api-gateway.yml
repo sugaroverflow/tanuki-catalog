@@ -1,5 +1,5 @@
 name: api-gateway
-version: 3.0.4
+version: 3.2.0
 owner: alice@tanuki-services.example
 owners:
   - cesar@tanuki-services.example
@@ -7,5 +7,5 @@ team: platform
 health_url: https://api-gateway.tanuki.internal/health
 repo_url: https://github.com/sugaroverflow/api-gateway
 on_call: "#platform-oncall"
-last_deploy: "2025-10-13T14:00:00Z"
+last_deploy: "2026-07-24T16:40:00Z"
 description: Public API edge with routing, rate limiting, and request authentication
