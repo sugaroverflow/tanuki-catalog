@@ -1,9 +1,9 @@
 name: search-api
-version: 4.0.1
+version: 4.1.2
 owner: colleen@tanuki-services.example
 team: experience
 health_url: https://search-api.tanuki.internal/health
 repo_url: https://github.com/sugaroverflow/search-api
 on_call: "#experience-oncall"
-last_deploy: "2025-12-01T16:30:00Z"
+last_deploy: "2026-07-23T10:06:00Z"
 description: Full-text search over the product catalog

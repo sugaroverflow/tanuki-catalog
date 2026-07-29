@@ -1,5 +1,5 @@
 name: tanuki-notify
-version: 1.2.0
+version: 1.3.0
 owner: sam@tanuki-services.example
 owners:
   - priya@tanuki-services.example
@@ -7,5 +7,5 @@ team: experience
 health_url: https://tanuki-notify.tanuki.internal/health
 repo_url: https://github.com/sugaroverflow/tanuki-notify
 on_call: "#experience-oncall"
-last_deploy: "2025-12-01T15:00:00Z"
+last_deploy: "2026-07-17T15:31:00Z"
 description: Routes deploy and incident notifications to team channels

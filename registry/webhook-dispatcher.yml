@@ -1,9 +1,9 @@
 name: webhook-dispatcher
-version: 0.4.1
+version: 0.5.1
 owner: mei@tanuki-services.example
 team: payments
 health_url: https://webhook-dispatcher.tanuki.internal/health
 repo_url: https://github.com/sugaroverflow/webhook-dispatcher
 on_call: "#payments-oncall"
-last_deploy: "2025-11-03T10:00:00Z"
+last_deploy: "2026-07-27T17:55:00Z"
 description: Delivers signed payment webhooks to merchant endpoints

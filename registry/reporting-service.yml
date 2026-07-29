@@ -1,9 +1,9 @@
 name: reporting-service
-version: 1.8.0
+version: 1.9.0
 owner: william@tanuki-services.example
 team: data
 health_url: https://reporting-service.tanuki.internal/health
 repo_url: https://github.com/sugaroverflow/reporting-service
 on_call: "#data-oncall"
-last_deploy: "2026-01-05T14:00:00Z"
+last_deploy: "2026-07-06T09:00:00Z"
 description: Scheduled business reports and dashboard exports

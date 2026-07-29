@@ -1,5 +1,5 @@
 name: payments-api
-version: 2.1.0
+version: 2.3.0
 owner: john@tanuki-services.example
 owners:
   - mei@tanuki-services.example
@@ -7,5 +7,5 @@ team: payments
 health_url: https://payments-api.tanuki.internal/health
 repo_url: https://github.com/sugaroverflow/payments-api
 on_call: "#payments-oncall"
-last_deploy: "2025-10-14T14:00:00Z"
+last_deploy: "2026-07-28T13:02:00Z"
 description: Card processing and payment orchestration

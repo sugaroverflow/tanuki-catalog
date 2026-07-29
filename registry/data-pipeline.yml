@@ -1,9 +1,9 @@
 name: data-pipeline
-version: 3.0.0
+version: 3.1.0
 owner: daniel@tanuki-services.example
 team: data
 health_url: https://data-pipeline.tanuki.internal/health
 repo_url: https://github.com/sugaroverflow/data-pipeline
 on_call: "#data-oncall"
-last_deploy: "2026-01-05T16:00:00Z"
+last_deploy: "2026-07-29T02:10:00Z"
 description: Nightly ETL from production stores into the warehouse
