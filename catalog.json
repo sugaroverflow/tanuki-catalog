@@ -1,0 +1,157 @@
+[
+  {
+    "description": "Public API edge with routing, rate limiting, and request authentication",
+    "health_url": "https://api-gateway.tanuki.internal/health",
+    "last_deploy": "2026-07-24T16:40:00Z",
+    "name": "api-gateway",
+    "on_call": "#platform-oncall",
+    "owner": "alice@tanuki-services.example",
+    "owners": [
+      "cesar@tanuki-services.example"
+    ],
+    "repo_url": "https://github.com/sugaroverflow/api-gateway",
+    "team": "platform",
+    "version": "3.2.0"
+  },
+  {
+    "description": "Token issuing and session validation for all internal services",
+    "health_url": "https://auth-service.tanuki.internal/health",
+    "last_deploy": "2026-07-21T09:14:00Z",
+    "name": "auth-service",
+    "on_call": "#platform-oncall",
+    "owner": "cesar@tanuki-services.example",
+    "repo_url": "https://github.com/sugaroverflow/auth-service",
+    "team": "platform",
+    "version": "1.6.1"
+  },
+  {
+    "description": "Async invoice generation and billing retries",
+    "health_url": "https://billing-worker.tanuki.internal/health",
+    "last_deploy": "2026-07-22T08:37:00Z",
+    "name": "billing-worker",
+    "on_call": "#payments-oncall",
+    "owner": "john@tanuki-services.example",
+    "repo_url": "https://github.com/sugaroverflow/billing-worker",
+    "team": "payments",
+    "version": "1.7.4"
+  },
+  {
+    "description": "Nightly ETL from production stores into the warehouse",
+    "health_url": "https://data-pipeline.tanuki.internal/health",
+    "last_deploy": "2026-07-29T02:10:00Z",
+    "name": "data-pipeline",
+    "on_call": "#data-oncall",
+    "owner": "daniel@tanuki-services.example",
+    "repo_url": "https://github.com/sugaroverflow/data-pipeline",
+    "team": "data",
+    "version": "3.1.0"
+  },
+  {
+    "description": "Runtime feature flag evaluation and rollout targeting",
+    "health_url": "https://feature-flags.tanuki.internal/health",
+    "last_deploy": "2026-07-08T14:22:00Z",
+    "name": "feature-flags",
+    "on_call": "#platform-oncall",
+    "owner": "priya@tanuki-services.example",
+    "repo_url": "https://github.com/sugaroverflow/feature-flags",
+    "team": "platform",
+    "version": "0.9.2"
+  },
+  {
+    "description": "Stock reservation and inventory sync for checkout",
+    "health_url": "https://inventory-service.tanuki.internal/health",
+    "last_deploy": "2026-06-25T12:19:00Z",
+    "name": "inventory-service",
+    "on_call": "#payments-oncall",
+    "owner": "mei@tanuki-services.example",
+    "repo_url": "https://github.com/sugaroverflow/inventory-service",
+    "team": "payments",
+    "version": "2.1.0"
+  },
+  {
+    "description": "Aggregates service metrics and forwards them to the observability stack",
+    "health_url": "https://metrics-collector.tanuki.internal/health",
+    "last_deploy": "2026-07-15T10:48:00Z",
+    "name": "metrics-collector",
+    "on_call": "#platform-oncall",
+    "owner": "cesar@tanuki-services.example",
+    "owners": [
+      "priya@tanuki-services.example"
+    ],
+    "repo_url": "https://github.com/sugaroverflow/metrics-collector",
+    "team": "platform",
+    "version": "1.11.0"
+  },
+  {
+    "description": "Card processing and payment orchestration",
+    "health_url": "https://payments-api.tanuki.internal/health",
+    "last_deploy": "2026-07-28T13:02:00Z",
+    "name": "payments-api",
+    "on_call": "#payments-oncall",
+    "owner": "john@tanuki-services.example",
+    "owners": [
+      "mei@tanuki-services.example"
+    ],
+    "repo_url": "https://github.com/sugaroverflow/payments-api",
+    "team": "payments",
+    "version": "2.3.0"
+  },
+  {
+    "description": "Scheduled business reports and dashboard exports",
+    "health_url": "https://reporting-service.tanuki.internal/health",
+    "last_deploy": "2026-07-06T09:00:00Z",
+    "name": "reporting-service",
+    "on_call": "#data-oncall",
+    "owner": "william@tanuki-services.example",
+    "repo_url": "https://github.com/sugaroverflow/reporting-service",
+    "team": "data",
+    "version": "1.9.0"
+  },
+  {
+    "description": "Full-text search over the product catalog",
+    "health_url": "https://search-api.tanuki.internal/health",
+    "last_deploy": "2026-07-23T10:06:00Z",
+    "name": "search-api",
+    "on_call": "#experience-oncall",
+    "owner": "colleen@tanuki-services.example",
+    "repo_url": "https://github.com/sugaroverflow/search-api",
+    "team": "experience",
+    "version": "4.1.2"
+  },
+  {
+    "description": "Shared session storage with TTL eviction, backing auth-service",
+    "health_url": "https://session-cache.tanuki.internal/health",
+    "last_deploy": "2026-06-30T11:05:00Z",
+    "name": "session-cache",
+    "on_call": "#platform-oncall",
+    "owner": "alice@tanuki-services.example",
+    "repo_url": "https://github.com/sugaroverflow/session-cache",
+    "team": "platform",
+    "version": "2.4.3"
+  },
+  {
+    "description": "Routes deploy and incident notifications to team channels",
+    "health_url": "https://tanuki-notify.tanuki.internal/health",
+    "last_deploy": "2026-07-17T15:31:00Z",
+    "name": "tanuki-notify",
+    "on_call": "#experience-oncall",
+    "owner": "sam@tanuki-services.example",
+    "owners": [
+      "priya@tanuki-services.example"
+    ],
+    "repo_url": "https://github.com/sugaroverflow/tanuki-notify",
+    "team": "experience",
+    "version": "1.3.0"
+  },
+  {
+    "description": "Delivers signed payment webhooks to merchant endpoints",
+    "health_url": "https://webhook-dispatcher.tanuki.internal/health",
+    "last_deploy": "2026-07-27T17:55:00Z",
+    "name": "webhook-dispatcher",
+    "on_call": "#payments-oncall",
+    "owner": "mei@tanuki-services.example",
+    "repo_url": "https://github.com/sugaroverflow/webhook-dispatcher",
+    "team": "payments",
+    "version": "0.5.1"
+  }
+]
