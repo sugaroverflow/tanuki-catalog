@@ -22,3 +22,6 @@ Doc-only, so it misses the `registry/**`, `**/*.go`, `cmd|internal/**`, and
 `infra/**` path filters. Only the repo-wide `CI` and `Lint` checks should run.
 
 Safe to delete along with this change.
+
+This follow-up commit verifies that updates pushed through the mirror appear on
+the existing pull request.
