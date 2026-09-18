@@ -33,7 +33,11 @@ built directly from `registry/` manifests as a fallback.
 
 1. Add `registry/<service-name>.yml` — the manifest `name` must match the
    filename. See `catalog.schema.json` for required fields.
-2. Run the validator:
+2. Run the validator — either the Go CLI (no Python required):
+   ```sh
+   ./tanuki validate
+   ```
+   or the Python build script:
    ```sh
    python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
    .venv/bin/python3 scripts/build_catalog.py --validate
